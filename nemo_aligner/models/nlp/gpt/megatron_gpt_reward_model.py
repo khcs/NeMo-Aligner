@@ -23,6 +23,7 @@ from megatron.core.pipeline_parallel.schedules import get_forward_backward_func
 from omegaconf.dictconfig import DictConfig
 from pytorch_lightning.trainer.trainer import Trainer
 
+from nemo.collections.common.parts.utils import apply_rope_scaling
 from nemo.collections.nlp.models.language_modeling.megatron_gpt_model import MegatronGPTModel, get_specs
 from nemo.collections.nlp.modules.common.megatron.utils import (
     average_losses_across_data_parallel_group,
@@ -107,6 +108,11 @@ class MegatronGPTRewardModel(MegatronGPTModel, SupervisedInterface, Inferrable):
             attribute_weights=self.cfg.get("regression", {}).get("attribute_weights", None),
             merge_attributes=self.cfg.get("regression", {}).get("merge_attributes", False),
         )
+        breakpoint()
+        if self.cfg.get("scale_positional_embedding", False):
+            if hasattr(model, "rotary_pos_emb"):
+                model.rotary_pos_emb.inv_freq = apply_rope_scaling(model.rotary_pos_emb.inv_freq)
+
         return model
 
     def get_forward_output_and_loss_func(self, validation_step=False):
