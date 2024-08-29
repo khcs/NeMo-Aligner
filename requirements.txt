@@ -1,3 +1,2 @@
 jsonlines
-nemo_toolkit[nlp]
 nvidia-pytriton
